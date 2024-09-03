@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskRecorder.Core", "TaskRecorder.Core\TaskRecorder.Core.csproj", "{93370A75-915D-4062-8E90-97314814643E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskRecorder.Core", "TaskRecorder.Core\TaskRecorder.Core.csproj", "{93370A75-915D-4062-8E90-97314814643E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskRecorder.Core.Test01", "TaskRecorder.Core.Test01\TaskRecorder.Core.Test01.csproj", "{0A1BD431-98E6-4BCF-995D-9D8F32E83D4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskRecorder.Core.Test01", "TaskRecorder.Core.Test01\TaskRecorder.Core.Test01.csproj", "{0A1BD431-98E6-4BCF-995D-9D8F32E83D4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskRecorder.WindowsApp", "TaskRecorder.WindowsApp\TaskRecorder.WindowsApp.csproj", "{22701757-3152-4C29-B8A4-1B1E058CD848}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{0A1BD431-98E6-4BCF-995D-9D8F32E83D4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A1BD431-98E6-4BCF-995D-9D8F32E83D4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A1BD431-98E6-4BCF-995D-9D8F32E83D4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22701757-3152-4C29-B8A4-1B1E058CD848}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22701757-3152-4C29-B8A4-1B1E058CD848}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22701757-3152-4C29-B8A4-1B1E058CD848}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22701757-3152-4C29-B8A4-1B1E058CD848}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

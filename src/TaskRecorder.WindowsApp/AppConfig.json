@@ -1,0 +1,6 @@
+﻿{
+  "Application": {
+    "Name": "Task Recorder",
+    "TrayIconTip": "業務履歴を記録します"
+  }
+}

@@ -8,34 +8,66 @@ using System.Text.Json;
 
 namespace TaskRecorder.Core
 {
-    public class WokingManager
+    public class WorkingManager
     {
         public List<WorkingTask> WorkingTasks
         {
             get;
-            set;
+            private set;
         }
 
+        /// <summary>
+        /// 現在従事しているタスクを取得します。
+        /// </summary>
         public WorkingTask CurrentWorkingTask
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// 現在従事しているタスクの開始時刻を取得します。
+        /// </summary>
         public DateTimeOffset CurrentWorkingTaskStartTime
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// リポジトリ ディレクトリのパスを取得します。
+        /// </summary>
         public string RepositoryPath
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// ログファイルとして出力する JSON データのファイル名先頭に付与する時刻のフォーマットを取得または設定します。
+        /// </summary>
+        public string LogFileTimeFormat
+        {
+            get;
+            set;
+        }
 
-        public WokingManager(string repositoryPath)
+        public WorkingManagerTimeProvider TimeProvider
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 日付の境目と判定する時刻を <see cref="WorkingManagerDateLine"/> で取得または設定します。
+        /// </summary>
+        public WorkingManagerDateLine DateLineUtc
+        {
+            get;
+            set;
+        }
+
+        public WorkingManager(string repositoryPath)
         {
             if (Directory.Exists(repositoryPath) == false)
                 throw new DirectoryNotFoundException();
@@ -43,12 +75,23 @@ namespace TaskRecorder.Core
             this.WorkingTasks = new List<WorkingTask>();
             this.CurrentWorkingTask = WorkingTask.Empty;
             this.RepositoryPath = repositoryPath;
+            this.LogFileTimeFormat = "yyyyMMdd-HHmmss-fff_";
+
+            var timeDiff = DateTime.UtcNow - DateTime.Now;
+
+            this.TimeProvider = new WorkingManagerTimeProvider();
+            this.DateLineUtc = new WorkingManagerDateLine()
+            {
+                Hour = (int)timeDiff.TotalHours,
+                Minute = timeDiff.Minutes,
+                Second = timeDiff.Seconds
+            };
         }
 
 
         private void _addWorkingLog(WorkingLog workingLog)
         {
-            var fileName = workingLog.EndDateTime.ToString("yyyyMMdd-HHmmss-fff_") + workingLog.WorkingTask.Id.ToString().Replace("-", "") + ".json";
+            var fileName = workingLog.EndDateTime.ToString(this.LogFileTimeFormat) + workingLog.WorkingTask.Id.ToString().Replace("-", "") + ".json";
             var filePath = Path.Combine(this.RepositoryPath, fileName);
 
             if (File.Exists(filePath))
@@ -58,6 +101,32 @@ namespace TaskRecorder.Core
             {
                 JsonSerializer.Serialize(fs, workingLog);
             }
+        }
+
+        private bool _isPassedDayLine(DateTimeOffset a, DateTimeOffset b)
+        {
+            // C の時刻情報
+            TimeSpan c = new TimeSpan(this.DateLineUtc.Hour, this.DateLineUtc.Minute, this.DateLineUtc.Second);
+
+            // A と B の時刻部分を TimeSpan で取得
+            TimeSpan timeA = a.TimeOfDay;
+            TimeSpan timeB = b.TimeOfDay;
+
+            // C が A と B の間に挟まれているかを判定
+            var isBetween = false;
+
+            if (a.Date == b.Date)
+            {
+                // 同じ日の場合の判定
+                isBetween = timeA <= c && c <= timeB;
+            }
+            else
+            {
+                // 異なる日をまたぐ場合の判定
+                isBetween = c >= timeA || c <= timeB;
+            }
+
+            return isBetween;
         }
 
         private List<WorkingLog> _mergeWorkingLogs(IEnumerable<WorkingLog> workingLogs)
@@ -70,17 +139,23 @@ namespace TaskRecorder.Core
 
             var consolidatedLogs = new List<WorkingLog>();
             WorkingLog? currentLog = null;
+            var dateLine = new TimeSpan(this.DateLineUtc.Hour, this.DateLineUtc.Minute, this.DateLineUtc.Second);
 
             foreach (var log in sortedLogs)
             {
                 var lId = log?.WorkingTask.Id;
                 var cId = currentLog?.WorkingTask.Id;
 
+                var cTime = currentLog?.EndDateTime.TimeOfDay;
+                var nTime = dateLine;
+                var lTime = log?.StartDateTime.TimeOfDay;
+
                 if (currentLog == null)
                 {
                     currentLog = log;
                 }
-                else if (currentLog.WorkingTask.Id == log?.WorkingTask.Id)
+                else if (currentLog.WorkingTask.Id == log?.WorkingTask.Id
+                    && _isPassedDayLine(currentLog.EndDateTime, log.StartDateTime) == false)
                 {
                     // タスクが同じ場合、開始時刻と終了時刻を統合
                     currentLog.EndDateTime = log.EndDateTime;
@@ -106,7 +181,7 @@ namespace TaskRecorder.Core
         {
             if (workingTask == null)
                 throw new ArgumentNullException(nameof(workingTask));
-            if (this.WorkingTasks.Contains(workingTask) == false)
+            if (WorkingTask.IsNullOrEmpty(workingTask) == false && this.WorkingTasks.Contains(workingTask) == false)
                 throw new ArgumentOutOfRangeException(nameof(workingTask));
 
             if (WorkingTask.IsNullOrEmpty(this.CurrentWorkingTask) == false)
@@ -115,18 +190,21 @@ namespace TaskRecorder.Core
                 {
                     WorkingTask = this.CurrentWorkingTask,
                     StartDateTime = this.CurrentWorkingTaskStartTime,
-                    EndDateTime = DateTimeOffset.Now,
+                    EndDateTime = this.TimeProvider.GetNow(),
                     Description = description,
                 });
             }
 
-            this.CurrentWorkingTaskStartTime = DateTimeOffset.Now;
+            this.CurrentWorkingTaskStartTime = this.TimeProvider.GetNow();
             this.CurrentWorkingTask = workingTask;
             return workingTask;
         }
 
         public void Pulse()
         {
+            if (WorkingTask.IsNullOrEmpty(this.CurrentWorkingTask))
+                return;
+
             this.ChangeCurrentTask(this.CurrentWorkingTask, String.Empty);
         }
 

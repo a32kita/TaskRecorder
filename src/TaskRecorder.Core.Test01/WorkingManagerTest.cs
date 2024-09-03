@@ -54,7 +54,7 @@ namespace TaskRecorder.Core.Test01
         [TestMethod("ChangeCurrentTask 正常系: 有効なタスク切換え")]
         public void ChangeCurrentTask_Test01()
         {
-            var workingManager = new WokingManager(this.RepositoryPath);
+            var workingManager = new WorkingManager(this.RepositoryPath);
             workingManager.WorkingTasks.AddRange(this.WorkingTasks);
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[0], "Change description");
         }
@@ -64,7 +64,7 @@ namespace TaskRecorder.Core.Test01
         {
             try
             {
-                var workingManager = new WokingManager(this.RepositoryPath);
+                var workingManager = new WorkingManager(this.RepositoryPath);
                 workingManager.WorkingTasks.AddRange(this.WorkingTasks);
                 workingManager.ChangeCurrentTask(new WorkingTask() { Id = Guid.Parse("10000000-0000-0000-0000-000000000000"), Name = "Task 06", Code = "task-06", Description = "Task 06 Description", DueDate = DateTimeOffset.Parse("2024/09/06 15:00:00 +09:00") }, "Change description");
             }
@@ -80,59 +80,112 @@ namespace TaskRecorder.Core.Test01
         [TestMethod("ChangeCurrentTask 正常系: ログ出力, 最適化なし")]
         public void ChangeCurrentTask_Test11()
         {
-            var workingManager = new WokingManager(this.RepositoryPath);
+            var timeProvider = new TestTimeProvider();
+            var workingManager = new WorkingManager(this.RepositoryPath);
             workingManager.WorkingTasks.AddRange(this.WorkingTasks);
+            workingManager.TimeProvider = timeProvider;
+
+            timeProvider.VirtualDateTime = DateTimeOffset.Parse("2024/09/01 09:30:00 +09:00");
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[0], "Change description");
 
-            Thread.Sleep(1000);
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[1], "Change description");
 
-            Thread.Sleep(1000);
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[2], "Change description");
 
-            Thread.Sleep(1000);
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[1], "Change description");
 
-            Thread.Sleep(1000);
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[1], "Change description");
 
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
             var logs = workingManager.LoadLogs(true, false);
-            Assert.IsNotNull(logs);
-            Assert.AreEqual(5, logs.Count());
-
             foreach (var log in logs)
             {
-                Logger.LogMessage("{0}: {1} ({2} => {3})", log.WorkingTask.Name, log.WorkingTask.Id, log.StartDateTime.ToString("HH:mm:ss"), log.EndDateTime.ToString("HH:mm:ss"));
+                Logger.LogMessage("{0}: {1} ({2} => {3})", log.WorkingTask.Name, log.WorkingTask.Id, log.StartDateTime.ToString("yyyy/MM/dd HH:mm:ss"), log.EndDateTime.ToString("yyyy/MM/dd HH:mm:ss"));
             }
+
+            Assert.IsNotNull(logs);
+            Assert.AreEqual(5, logs.Count());
         }
 
         [TestMethod("ChangeCurrentTask 正常系: ログ出力, 最適化あり")]
         public void ChangeCurrentTask_Test12()
         {
-            var workingManager = new WokingManager(this.RepositoryPath);
+            var timeProvider = new TestTimeProvider();
+            var workingManager = new WorkingManager(this.RepositoryPath);
             workingManager.WorkingTasks.AddRange(this.WorkingTasks);
+            workingManager.TimeProvider = timeProvider;
+
+            timeProvider.VirtualDateTime = DateTimeOffset.Parse("2024/09/04 09:30:00 +09:00");
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[0], "Change description");
 
-            Thread.Sleep(1000);
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[1], "Change description");
 
-            Thread.Sleep(1000);
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[2], "Change description");
 
-            Thread.Sleep(1000);
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[1], "Change description");
 
-            Thread.Sleep(1000);
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[1], "Change description");
 
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
             var logs = workingManager.LoadLogs(true, true);
-            Assert.IsNotNull(logs);
-            Assert.AreEqual(4, logs.Count());
-
             foreach (var log in logs)
             {
-                Logger.LogMessage("{0}: {1} ({2} => {3})", log.WorkingTask.Name, log.WorkingTask.Id, log.StartDateTime.ToString("HH:mm:ss"), log.EndDateTime.ToString("HH:mm:ss"));
+                Logger.LogMessage("{0}: {1} ({2} => {3})", log.WorkingTask.Name, log.WorkingTask.Id, log.StartDateTime.ToString("yyyy/MM/dd HH:mm:ss"), log.EndDateTime.ToString("yyyy/MM/dd HH:mm:ss"));
             }
+
+            Assert.IsNotNull(logs);
+            Assert.AreEqual(4, logs.Count());
+        }
+
+        [TestMethod("ChangeCurrentTask 正常系: ログ出力, 最適化あり, 日付またぎ")]
+        public void ChangeCurrentTask_Test13()
+        {
+            var timeProvider = new TestTimeProvider();
+            var workingManager = new WorkingManager(this.RepositoryPath);
+            workingManager.WorkingTasks.AddRange(this.WorkingTasks);
+            workingManager.TimeProvider = timeProvider;
+
+            timeProvider.VirtualDateTime = DateTimeOffset.Parse("2024/09/02 09:30:00 +09:00");
+            workingManager.ChangeCurrentTask(workingManager.WorkingTasks[0], "Change description");
+
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
+            workingManager.ChangeCurrentTask(workingManager.WorkingTasks[1], "Change description");
+
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
+            workingManager.ChangeCurrentTask(workingManager.WorkingTasks[2], "Change description");
+
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
+            workingManager.ChangeCurrentTask(workingManager.WorkingTasks[1], "Change description");
+
+            // シャットダウン
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
+            workingManager.Pulse();
+
+            // リセット
+            workingManager = new WorkingManager(this.RepositoryPath);
+            workingManager.WorkingTasks.AddRange(this.WorkingTasks);
+            workingManager.TimeProvider = timeProvider;
+
+            timeProvider.VirtualDateTime += new TimeSpan(24, 10, 0);
+            workingManager.ChangeCurrentTask(workingManager.WorkingTasks[1], "Change description");
+
+            timeProvider.VirtualDateTime += new TimeSpan(0, 10, 0);
+            var logs = workingManager.LoadLogs(true, true);
+            foreach (var log in logs)
+            {
+                Logger.LogMessage("{0}: {1} ({2} => {3})", log.WorkingTask.Name, log.WorkingTask.Id, log.StartDateTime.ToString("yyyy/MM/dd HH:mm:ss"), log.EndDateTime.ToString("yyyy/MM/dd HH:mm:ss"));
+            }
+
+            Assert.IsNotNull(logs);
+            Assert.AreEqual(5, logs.Count());
         }
     }
 }
