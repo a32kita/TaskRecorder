@@ -182,7 +182,7 @@ namespace TaskRecorder.WindowsApp
             gen = String.IsNullOrEmpty(gen) ? "(None)" : gen;
 
             var resp = System.Windows.MessageBox.Show(
-                $"タスクを切り替えますか？\n\n【現】{gen}\n【新】{newWorkingTask.Name}", this.ApplicationName, MessageBoxButton.YesNo);
+                $"タスクを切り替えますか？\n\n【現】{gen}\n【新】{newWorkingTask.Name}", this.ApplicationName, MessageBoxButton.YesNo, MessageBoxImage.Information);
 
             if (resp == MessageBoxResult.No)
                 return;
@@ -194,7 +194,19 @@ namespace TaskRecorder.WindowsApp
         {
             //this._menu.Items.Add("設定(&S) ...", null, (obj, e) => { });
             this._menu.Items.Add(this._tasksMenu);
-            this._menu.Items.Add("終了(&X)", null, (obj, e) => { this.Shutdown(); });
+            this._menu.Items.Add("終了(&X)", null, (obj, e) =>
+            {
+                var result = System.Windows.MessageBox.Show(
+                    $"{this.ApplicationName} を終了しますか？",
+                    this.ApplicationName,
+                    MessageBoxButton.OKCancel,
+                    MessageBoxImage.Information,
+                    MessageBoxResult.Cancel);
+                if (result == MessageBoxResult.Cancel)
+                    return;
+
+                this.Shutdown();
+            });
 
             this._notifyIcon.Visible = true;
             this._notifyIcon.Icon = Icon.ExtractAssociatedIcon(this.Location);
