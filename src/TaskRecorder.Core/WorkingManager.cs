@@ -157,12 +157,10 @@ namespace TaskRecorder.Core
                 else if (currentLog.WorkingTask.Id == log?.WorkingTask.Id
                     && _isPassedDayLine(currentLog.EndDateTime, log.StartDateTime) == false)
                 {
-                    // タスクが同じ場合、開始時刻と終了時刻を統合
                     currentLog.EndDateTime = log.EndDateTime;
                 }
                 else
                 {
-                    // 異なるタスクに切り替わった場合、現在のログをリストに追加
                     consolidatedLogs.Add(currentLog);
                     currentLog = log;
                 }

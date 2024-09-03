@@ -116,20 +116,23 @@ namespace TaskRecorder.WindowsApp
             
             if (taskDefJsonFiles.Length == 0)
             {
-                var exampleTask = new WorkingTask()
+                for (var i = 1; i <= 3; i++)
                 {
-                    Id = Guid.NewGuid(),
-                    Name = "Example task",
-                    Code = "example-task-001",
-                    Description = "Task description",
-                };
-
-                using (var fs = File.OpenWrite(Path.Combine(this.TaskStorePath, "exampletask.json")))
-                {
-                    JsonSerializer.Serialize(fs, exampleTask, new JsonSerializerOptions()
+                    var exampleTask = new WorkingTask()
                     {
-                        WriteIndented = true,
-                    });
+                        Id = Guid.NewGuid(),
+                        Name = "Example task " + i.ToString("000"),
+                        Code = "example-task-" + i.ToString("000"),
+                        Description = "Task description",
+                    };
+
+                    using (var fs = File.OpenWrite(Path.Combine(this.TaskStorePath, $"exampletask_{i.ToString("000")}.json")))
+                    {
+                        JsonSerializer.Serialize(fs, exampleTask, new JsonSerializerOptions()
+                        {
+                            WriteIndented = true,
+                        });
+                    }
                 }
 
                 taskDefJsonFiles = Directory.GetFiles(this.TaskStorePath, "*.json", SearchOption.TopDirectoryOnly);
@@ -171,8 +174,11 @@ namespace TaskRecorder.WindowsApp
             if (newWorkingTask == null)
                 throw new Exception();
 
+            var gen = this._workingManager.CurrentWorkingTask.Name;
+            gen = String.IsNullOrEmpty(gen) ? "(None)" : gen;
+
             var resp = System.Windows.MessageBox.Show(
-                $"タスクを切り替えますか？\n\n【現】{this._workingManager.CurrentWorkingTask.Name}\n【新】{newWorkingTask.Name}", this.ApplicationName, MessageBoxButton.YesNo);
+                $"タスクを切り替えますか？\n\n【現】{gen}\n【新】{newWorkingTask.Name}", this.ApplicationName, MessageBoxButton.YesNo);
 
             if (resp == MessageBoxResult.No)
                 return;
@@ -182,16 +188,16 @@ namespace TaskRecorder.WindowsApp
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            _menu.Items.Add("設定(&S) ...", null, (obj, e) => { });
-            _menu.Items.Add(this._tasksMenu);
-            _menu.Items.Add("終了(&X)", null, (obj, e) => { this.Shutdown(); });
+            //this._menu.Items.Add("設定(&S) ...", null, (obj, e) => { });
+            this._menu.Items.Add(this._tasksMenu);
+            this._menu.Items.Add("終了(&X)", null, (obj, e) => { this.Shutdown(); });
 
-            _notifyIcon.Visible = true;
-            _notifyIcon.Icon = Icon.ExtractAssociatedIcon(this.Location);
-            _notifyIcon.Text = $"{this.ApplicationName}: {this.TrayIconTip}";
-            _notifyIcon.ContextMenuStrip = _menu;
+            this._notifyIcon.Visible = true;
+            this._notifyIcon.Icon = Icon.ExtractAssociatedIcon(this.Location);
+            this._notifyIcon.Text = $"{this.ApplicationName}: {this.TrayIconTip}";
+            this._notifyIcon.ContextMenuStrip = _menu;
 
-            _notifyIcon.Click += (obj, e) =>
+            this._notifyIcon.Click += (obj, e) =>
             {
                 // クリックされたときの処理
                 // NOP
@@ -203,6 +209,8 @@ namespace TaskRecorder.WindowsApp
         protected override void OnExit(ExitEventArgs e)
         {
             this._workingManager.Pulse();
+            this._notifyIcon.Dispose();
+
             base.OnExit(e);
         }
 
