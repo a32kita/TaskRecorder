@@ -62,34 +62,6 @@ namespace TaskRecorder.Core
 
         private List<WorkingLog> _mergeWorkingLogs(IEnumerable<WorkingLog> workingLogs)
         {
-            //var sortedLogs = workingLogs.OrderBy(log => log.EndDateTime).ToList();
-            //var mergedLogs = new List<WorkingLog>();
-
-            //WorkingLog? currentLog = null;
-            //foreach (var log in sortedLogs)
-            //{
-            //    if (currentLog == null)
-            //    {
-            //        currentLog = log;
-            //    }
-            //    else if (currentLog.WorkingTask.Id == log.WorkingTask.Id)
-            //    {
-            //        currentLog.EndDateTime = log.EndDateTime;
-            //    }
-            //    else
-            //    {
-            //        mergedLogs.Add(currentLog);
-            //        currentLog = log;
-            //    }
-            //}
-
-            //if (currentLog != null)
-            //{
-            //    mergedLogs.Add(currentLog);
-            //}
-
-            //return mergedLogs;
-
             if (workingLogs == null || workingLogs.Count() == 0)
                 return new List<WorkingLog>();
 
@@ -137,13 +109,16 @@ namespace TaskRecorder.Core
             if (this.WorkingTasks.Contains(workingTask) == false)
                 throw new ArgumentOutOfRangeException(nameof(workingTask));
 
-            this._addWorkingLog(new WorkingLog()
+            if (WorkingTask.IsNullOrEmpty(this.CurrentWorkingTask) == false)
             {
-                WorkingTask = this.CurrentWorkingTask,
-                StartDateTime = this.CurrentWorkingTaskStartTime,
-                EndDateTime = DateTimeOffset.Now,
-                Description = description,
-            });
+                this._addWorkingLog(new WorkingLog()
+                {
+                    WorkingTask = this.CurrentWorkingTask,
+                    StartDateTime = this.CurrentWorkingTaskStartTime,
+                    EndDateTime = DateTimeOffset.Now,
+                    Description = description,
+                });
+            }
 
             this.CurrentWorkingTaskStartTime = DateTimeOffset.Now;
             this.CurrentWorkingTask = workingTask;
@@ -155,8 +130,11 @@ namespace TaskRecorder.Core
             this.ChangeCurrentTask(this.CurrentWorkingTask, String.Empty);
         }
 
-        public IEnumerable<WorkingLog> LoadLogs(bool optimize = true)
+        public IEnumerable<WorkingLog> LoadLogs(bool executePulse = true, bool optimize = true)
         {
+            if (executePulse)
+                this.Pulse();
+
             var result = new List<WorkingLog>();
             var jsonFiles = Directory.GetFiles(this.RepositoryPath, "*.json", SearchOption.TopDirectoryOnly);
             var rawLogs = jsonFiles.Select(jsonFile =>
@@ -173,23 +151,6 @@ namespace TaskRecorder.Core
             {
                 result.AddRange(rawLogs);
             }
-
-            //if (rawLogs.Length == 0)
-            //    return result;
-            //var firstLog = rawLogs[0];
-            //if (firstLog == null)
-            //    throw new Exception();
-            //result.Add(firstLog);
-
-            //for (var i = 1; i < rawLogs.Length; i++)
-            //{
-            //    var current = rawLogs[i];
-            //    var prev = rawLogs[i - 1];
-            //    if (prev?.WorkingTask.Id == current?.WorkingTask.Id)
-            //    {
-
-            //    }
-            //}
 
             return result;
         }

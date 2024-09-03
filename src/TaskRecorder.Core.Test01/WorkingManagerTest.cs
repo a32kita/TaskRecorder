@@ -96,13 +96,13 @@ namespace TaskRecorder.Core.Test01
             Thread.Sleep(1000);
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[1], "Change description");
 
-            var logs = workingManager.LoadLogs(false);
+            var logs = workingManager.LoadLogs(true, false);
             Assert.IsNotNull(logs);
             Assert.AreEqual(5, logs.Count());
 
             foreach (var log in logs)
             {
-                Logger.LogMessage("{0}: {1}", log.WorkingTask.Name, log.WorkingTask.Id);
+                Logger.LogMessage("{0}: {1} ({2} => {3})", log.WorkingTask.Name, log.WorkingTask.Id, log.StartDateTime.ToString("HH:mm:ss"), log.EndDateTime.ToString("HH:mm:ss"));
             }
         }
 
@@ -125,13 +125,13 @@ namespace TaskRecorder.Core.Test01
             Thread.Sleep(1000);
             workingManager.ChangeCurrentTask(workingManager.WorkingTasks[1], "Change description");
 
-            var logs = workingManager.LoadLogs(true);
+            var logs = workingManager.LoadLogs(true, true);
             Assert.IsNotNull(logs);
             Assert.AreEqual(4, logs.Count());
 
             foreach (var log in logs)
             {
-                Logger.LogMessage("{0}: {1}", log.WorkingTask.Name, log.WorkingTask.Id);
+                Logger.LogMessage("{0}: {1} ({2} => {3})", log.WorkingTask.Name, log.WorkingTask.Id, log.StartDateTime.ToString("HH:mm:ss"), log.EndDateTime.ToString("HH:mm:ss"));
             }
         }
     }
