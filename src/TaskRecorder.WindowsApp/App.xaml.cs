@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
-
+using System.Windows.Threading;
 using TaskRecorder.Core;
 
 namespace TaskRecorder.WindowsApp
@@ -20,6 +20,8 @@ namespace TaskRecorder.WindowsApp
         private NotifyIcon _notifyIcon;
 
         private ToolStripMenuItem _tasksMenu;
+
+        private DispatcherTimer _timer;
 
         public string ApplicationName
         {
@@ -74,7 +76,9 @@ namespace TaskRecorder.WindowsApp
 
             this._workingManager = new WorkingManager(this.RepositoryPath);
             this._workingManager.LogFileTimeFormat = "yyyyMMdd-HHmmss-fff_";
-
+            
+            this._timer = new DispatcherTimer();
+            
             this._loadTasks();
             this._updateTasksMenu();
         }
@@ -203,12 +207,27 @@ namespace TaskRecorder.WindowsApp
                 // NOP
             };
 
+            this._checkCurrentTask();
+
+            this._timer.Interval = TimeSpan.FromMinutes(5);
+            this._timer.Tick += (sender, e) => this._checkCurrentTask();
+            this._timer.Start();
+
             base.OnStartup(e);
+        }
+
+        private void _checkCurrentTask()
+        {
+            if (WorkingTask.IsNullOrEmpty(this._workingManager.CurrentWorkingTask) == false)
+                return;
+
+            this._notifyIcon.ShowBalloonTip(3000, this.ApplicationName, "タスクを選択してください", ToolTipIcon.Info);
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             this._workingManager.Pulse();
+            this._timer.Stop();
             this._notifyIcon.Dispose();
 
             base.OnExit(e);
