@@ -2,6 +2,7 @@
 using System.Data;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Windows;
@@ -191,6 +192,13 @@ namespace TaskRecorder.WindowsApp
                 return;
 
             this._workingManager.ChangeCurrentTask(newWorkingTask, String.Empty);
+
+            foreach (var item in this._tasksMenu.DropDownItems)
+            {
+                if (item is ToolStripMenuItem)
+                    ((ToolStripMenuItem)item).Checked = false;
+            }
+            menuItem.Checked = true;
         }
 
         protected override void OnStartup(StartupEventArgs e)
