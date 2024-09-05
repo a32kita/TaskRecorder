@@ -4,6 +4,8 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
     <AssemblyName>taskreccore</AssemblyName>
+	<AssemblyTitle>TaskRecorder Core Library</AssemblyTitle>
+	<AssemblyDescription>TaskRecorder Core Library</AssemblyDescription>
   </PropertyGroup>
 
   <ItemGroup>
