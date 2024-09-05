@@ -8,6 +8,12 @@
     <UseWPF>true</UseWPF>
 	<UseWindowsForms>true</UseWindowsForms>
 	<ApplicationIcon>icon.ico</ApplicationIcon>
+	<AssemblyName>taskrecapp</AssemblyName>
+	<Authors>Explorers of the Binary World</Authors>
+	<Company>Explorers of the Binary World</Company>
+	<PackageId>$(MSBuildProjectName)</PackageId>
+	<Product>$(MSBuildProjectName)</Product>
+	<Copyright>©2024 Explorers of the Binary World All Rights Reserved.</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
