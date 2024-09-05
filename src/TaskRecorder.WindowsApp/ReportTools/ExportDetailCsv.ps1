@@ -5,14 +5,14 @@ if ($PSVersionTable.PSVersion.Major -lt 7) {
 }
 
 # Load TaskRecorder.Core.dll
-Add-Type -Path ([System.IO.Path]::Combine($PSScriptRoot, "TaskRecorder.Core.dll"))
+Add-Type -Path ([System.IO.Path]::Combine($PSScriptRoot, "../taskreccore.dll"))
 
 # Use TaskRecorder.Core namespace
 $WorkingManagerType = [TaskRecorder.Core.WorkingManager]
 $LogType = [TaskRecorder.Core.WorkingLog]
 
 # Create an instance of WorkingManager
-$workingManager = [Activator]::CreateInstance($WorkingManagerType, [System.IO.Path]::Combine($PSScriptRoot, "TaskLogs"))
+$workingManager = [Activator]::CreateInstance($WorkingManagerType, [System.IO.Path]::Combine($PSScriptRoot, "../TaskLogs"))
 
 # Call LoadLogs method to retrieve logs
 $logs = $workingManager.LoadLogs($true, $true)
