@@ -3,6 +3,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
+using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 using TaskRecorder.Core;
@@ -14,6 +15,8 @@ namespace TaskRecorder.WindowsApp
     /// </summary>
     public partial class App : System.Windows.Application
     {
+        private static Mutex? _mutex;
+
         private WorkingManager _workingManager;
 
         private ContextMenuStrip _menu;
@@ -192,6 +195,16 @@ namespace TaskRecorder.WindowsApp
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            var isNewInstance = false;
+            var mutexName = "Global\\Eobw-TaskRecorderApp_C021C768-5D6A-4FF6-956E-1AE40BA29E41";
+
+            _mutex = new Mutex(true, mutexName, out isNewInstance);
+            if (isNewInstance == false)
+            {
+                System.Windows.MessageBox.Show($"{this.ApplicationName} はすでに起動済みです", this.ApplicationName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                Environment.Exit(0);
+            }
+
             System.Windows.Forms.Application.EnableVisualStyles();
 
             //this._menu.Items.Add("設定(&S) ...", null, (obj, e) => { });
