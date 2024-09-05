@@ -192,6 +192,8 @@ namespace TaskRecorder.WindowsApp
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            System.Windows.Forms.Application.EnableVisualStyles();
+
             //this._menu.Items.Add("設定(&S) ...", null, (obj, e) => { });
             this._menu.Items.Add(this._tasksMenu);
             this._menu.Items.Add("終了(&X)", null, (obj, e) =>
