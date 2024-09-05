@@ -35,7 +35,7 @@ foreach ($group in $groupedLogs) {
     $date = $group.Name
 
     # Retrieve WorkingTask.Name and join them with " / ", removing duplicates
-    $taskNames = $group.Group | ForEach-Object { $_.WorkingTask.Name } | Sort-Object -Unique
+    $taskNames = $group.Group | ForEach-Object { $_.WorkingTask.GetShortName() } | Sort-Object -Unique
     $taskNamesString = $taskNames -join " / "
 
     # Format and write the output to the file

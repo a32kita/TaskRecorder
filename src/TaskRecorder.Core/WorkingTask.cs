@@ -22,6 +22,12 @@ namespace TaskRecorder.Core
             set;
         }
 
+        public string ShortName
+        {
+            get;
+            set;
+        }
+
         public string Code
         {
             get;
@@ -51,6 +57,7 @@ namespace TaskRecorder.Core
         {
             this.Id = new Guid();
             this.Name = String.Empty;
+            this.ShortName = String.Empty;
             this.Code = String.Empty;
             this.Description = String.Empty;
             this.DueDate = DateTimeOffset.MinValue;
@@ -63,6 +70,14 @@ namespace TaskRecorder.Core
             {
                 _isEmpty = true,
             };
+        }
+
+
+        public string GetShortName()
+        {
+            if (String.IsNullOrEmpty(this.ShortName))
+                return this.Name;
+            return this.ShortName;
         }
 
 
