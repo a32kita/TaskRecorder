@@ -61,7 +61,7 @@ namespace TaskRecorder.WindowsApp
         {
             this._menu = new ContextMenuStrip();
             this._notifyIcon = new NotifyIcon();
-            this._tasksMenu = new ToolStripMenuItem("業務の切り替え");
+            this._tasksMenu = new ToolStripMenuItem("業務の切り替え(&C)");
 
             this.Location = Environment.ProcessPath ?? throw new Exception();
 
@@ -182,15 +182,6 @@ namespace TaskRecorder.WindowsApp
             if (newWorkingTask == null)
                 throw new Exception();
 
-            //var gen = this._workingManager.CurrentWorkingTask.Name;
-            //gen = String.IsNullOrEmpty(gen) ? "(None)" : gen;
-
-            //var resp = System.Windows.MessageBox.Show(
-            //    $"タスクを切り替えますか？\n\n【現】{gen}\n【新】{newWorkingTask.Name}", this.ApplicationName, MessageBoxButton.YesNo, MessageBoxImage.Information);
-
-            //if (resp == MessageBoxResult.No)
-            //    return;
-
             var confirmChangesWindow = new ConfirmChangesWindow();
             confirmChangesWindow.PrevWorkingTask = WorkingTask.IsNullOrEmpty(this._workingManager.CurrentWorkingTask) ? new WorkingTask() { Name = "(None)" } : this._workingManager.CurrentWorkingTask;
             confirmChangesWindow.NextWorkingTask = newWorkingTask;
@@ -225,6 +216,21 @@ namespace TaskRecorder.WindowsApp
 
             //this._menu.Items.Add("設定(&S) ...", null, (obj, e) => { });
             this._menu.Items.Add(this._tasksMenu);
+            this._menu.Items.Add("タスク定義フォルダを開く(&T) ...", null, (obj, e) =>
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = this.TaskStorePath,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"エラーが発生しました: {ex.Message}");
+                }
+            });
             this._menu.Items.Add("終了(&X)", null, (obj, e) =>
             {
                 var result = System.Windows.MessageBox.Show(

@@ -30,13 +30,16 @@ $outputFile = ([System.IO.Path]::Combine($PSScriptRoot, "ExportReport.txt"))
 $stream = [System.IO.StreamWriter]::new($outputFile, $false, [System.Text.Encoding]::GetEncoding("shift_jis"))
 
 # Process each group
-foreach ($group in $groupedLogs) {
+foreach ($group in $groupedLogs | Sort-Object { [datetime]::ParseExact($_.Name, 'yyyy/M/d', $null) }) {
     # Date from StartDateTime
     $date = $group.Name
 
-    # Retrieve WorkingTask.Name and join them with " / ", removing duplicates
-    $taskNames = $group.Group | ForEach-Object { $_.WorkingTask.GetShortName() } | Sort-Object -Unique
-    $taskNamesString = $taskNames -join " / "
+    #$group | ForEach-Object { Write-Host $_.Name; $_.Group | Sort-Object { $_.WorkingTask.Code } | ForEach-Object { $_.WorkingTask.Code + " " + $_.WorkingTask.GetShortName()} }
+    #break
+
+    # Retrieve WorkingTask.Name and join them with ", ", removing duplicates
+    $taskNames = $group.Group | Sort-Object { $_.WorkingTask.Id } -Unique | Sort-Object { $_.WorkingTask.Code } | ForEach-Object { $_.WorkingTask.GetShortName() }
+    $taskNamesString = $taskNames -join "、"
 
     # Format and write the output to the file
     $stream.WriteLine("{0}`t{1}", $date, $taskNamesString)

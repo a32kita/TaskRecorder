@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TaskRecorder.WindowsApp"
         xmlns:appui="clr-namespace:TaskRecorder.WindowsApp.UIControls"
         mc:Ignorable="d"
-        Title="ConfirmChangesWindow" Width="400" ResizeMode="NoResize" SizeToContent="Height" WindowStartupLocation="CenterScreen">
+        Title="タスクの切り替え" Width="400" ResizeMode="NoResize" SizeToContent="Height" WindowStartupLocation="CenterScreen">
     <StackPanel Margin="10px">
         <TextBlock>タスクを切り替えますか？</TextBlock>
         <Grid>

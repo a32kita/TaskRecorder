@@ -7,15 +7,15 @@ set pwshPath2="D:\Program Files\PowerShell\7\pwsh.exe"
 
 REM Check if pwsh.exe exists in the first path
 if exist %pwshPath1% (
-    %pwshPath1% -File "%~dp0ExportReport.ps1"
-    start notepad "%~dp0ExportReport.txt"
+    %pwshPath1% -File "%~dp0ExportPCReport.ps1"
+    start "" "%~dp0ExportPCReport.csv"
     goto end
 )
 
 REM Check if pwsh.exe exists in the second path
 if exist %pwshPath2% (
-    %pwshPath2% -File "%~dp0ExportReport.ps1"
-    start notepad "%~dp0ExportReport.txt"
+    %pwshPath2% -File "%~dp0ExportPCReport.ps1"
+    start "" "%~dp0ExportPCReport.csv"
     goto end
 )
 
