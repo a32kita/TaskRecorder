@@ -26,7 +26,8 @@ namespace TaskRecorder.WindowsApp
 
         private ToolStripMenuItem _tasksMenu;
 
-        private DispatcherTimer _timer;
+        private DispatcherTimer _emptyCheckTimer;
+        private DispatcherTimer _statusCheckTimer;
 
         private ToolMenuInfo? _toolMenuInfo;
 
@@ -95,8 +96,9 @@ namespace TaskRecorder.WindowsApp
             this._workingManager = new WorkingManager(this.RepositoryPath);
             this._workingManager.LogFileTimeFormat = "yyyyMMdd-HHmmss-fff_";
             
-            this._timer = new DispatcherTimer();
-            
+            this._emptyCheckTimer = new DispatcherTimer();
+            this._statusCheckTimer = new DispatcherTimer();
+
             this._loadTasks();
             this._updateTasksMenu();
             this._loadTools();
@@ -327,9 +329,19 @@ namespace TaskRecorder.WindowsApp
 
             this._checkCurrentTask();
 
-            this._timer.Interval = TimeSpan.FromMinutes(5);
-            this._timer.Tick += (sender, e) => this._checkCurrentTask();
-            this._timer.Start();
+            this._emptyCheckTimer.Interval = TimeSpan.FromMinutes(3);
+            this._emptyCheckTimer.Tick += (sender, e) => this._checkCurrentTask();
+            this._emptyCheckTimer.Start();
+
+            this._statusCheckTimer.Interval = TimeSpan.FromMinutes(60);
+            this._statusCheckTimer.Tick += (sender, e) =>
+            {
+                if (WorkingTask.IsNullOrEmpty(this._workingManager.CurrentWorkingTask))
+                    return;
+
+                this._notifyIcon.ShowBalloonTip(3000, this.ApplicationName, $"現在のタスク\n{this._workingManager.CurrentWorkingTask.Name}", ToolTipIcon.Info);
+            };
+            this._statusCheckTimer.Start();
 
             base.OnStartup(e);
 
@@ -347,7 +359,7 @@ namespace TaskRecorder.WindowsApp
         protected override void OnExit(ExitEventArgs e)
         {
             this._workingManager.Pulse();
-            this._timer.Stop();
+            this._emptyCheckTimer.Stop();
             this._notifyIcon.Dispose();
 
             base.OnExit(e);
