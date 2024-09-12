@@ -182,13 +182,21 @@ namespace TaskRecorder.WindowsApp
             if (newWorkingTask == null)
                 throw new Exception();
 
-            var gen = this._workingManager.CurrentWorkingTask.Name;
-            gen = String.IsNullOrEmpty(gen) ? "(None)" : gen;
+            //var gen = this._workingManager.CurrentWorkingTask.Name;
+            //gen = String.IsNullOrEmpty(gen) ? "(None)" : gen;
 
-            var resp = System.Windows.MessageBox.Show(
-                $"タスクを切り替えますか？\n\n【現】{gen}\n【新】{newWorkingTask.Name}", this.ApplicationName, MessageBoxButton.YesNo, MessageBoxImage.Information);
+            //var resp = System.Windows.MessageBox.Show(
+            //    $"タスクを切り替えますか？\n\n【現】{gen}\n【新】{newWorkingTask.Name}", this.ApplicationName, MessageBoxButton.YesNo, MessageBoxImage.Information);
 
-            if (resp == MessageBoxResult.No)
+            //if (resp == MessageBoxResult.No)
+            //    return;
+
+            var confirmChangesWindow = new ConfirmChangesWindow();
+            confirmChangesWindow.PrevWorkingTask = WorkingTask.IsNullOrEmpty(this._workingManager.CurrentWorkingTask) ? new WorkingTask() { Name = "(None)" } : this._workingManager.CurrentWorkingTask;
+            confirmChangesWindow.NextWorkingTask = newWorkingTask;
+
+            var respConfirm = confirmChangesWindow.ShowDialog();
+            if (respConfirm == null || respConfirm.Value == false)
                 return;
 
             this._workingManager.ChangeCurrentTask(newWorkingTask, String.Empty);
@@ -249,6 +257,8 @@ namespace TaskRecorder.WindowsApp
             this._timer.Start();
 
             base.OnStartup(e);
+
+            this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
         }
 
         private void _checkCurrentTask()

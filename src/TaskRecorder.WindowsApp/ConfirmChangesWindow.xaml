@@ -1,0 +1,35 @@
+﻿<Window x:Class="TaskRecorder.WindowsApp.ConfirmChangesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TaskRecorder.WindowsApp"
+        xmlns:appui="clr-namespace:TaskRecorder.WindowsApp.UIControls"
+        mc:Ignorable="d"
+        Title="ConfirmChangesWindow" Width="400" ResizeMode="NoResize" SizeToContent="Height">
+    <StackPanel Margin="10px">
+        <TextBlock>タスクを切り替えますか？</TextBlock>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Label VerticalAlignment="Center" Margin="10px 0px" Grid.Column="0" Grid.Row="0">切り替え前</Label>
+            <appui:TaskItemPanel Grid.Column="1" Grid.Row="0" WorkingTask="{Binding PrevWorkingTask, Mode=TwoWay}"/>
+
+            <Label VerticalAlignment="Center" Margin="10px 0px" Grid.Column="0" Grid.Row="1">切り替え後</Label>
+            <appui:TaskItemPanel Grid.Column="1" Grid.Row="1" WorkingTask="{Binding NextWorkingTask, Mode=TwoWay}"/>
+        </Grid>
+        <StackPanel
+            Orientation="Horizontal"
+            HorizontalAlignment="Right">
+            <Button Padding="10px 5px" Margin="5px" Click="CancelButton_Click">キャンセル</Button>
+            <Button Padding="10px 5px" Margin="5px" Click="ApplyButton_Click">切り替え</Button>
+        </StackPanel>
+    </StackPanel>
+</Window>
