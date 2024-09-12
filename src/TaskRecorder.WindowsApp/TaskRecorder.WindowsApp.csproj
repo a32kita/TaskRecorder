@@ -64,6 +64,12 @@
     <None Update="ReportTools\ExportDetailCsv.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="ReportTools\ExportPCReport.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ReportTools\ExportPCReport.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="ReportTools\ExportReport.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
