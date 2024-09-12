@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 using TaskRecorder.Core;
+using TaskRecorder.WindowsApp.Tools;
 
 namespace TaskRecorder.WindowsApp
 {
@@ -26,6 +27,9 @@ namespace TaskRecorder.WindowsApp
         private ToolStripMenuItem _tasksMenu;
 
         private DispatcherTimer _timer;
+
+        private ToolMenuInfo? _toolMenuInfo;
+
 
         public string ApplicationName
         {
@@ -51,6 +55,12 @@ namespace TaskRecorder.WindowsApp
             private set;
         }
 
+        public string ToolDirectoryPath
+        {
+            get;
+            private set;
+        }
+
         public string Location
         {
             get;
@@ -69,6 +79,7 @@ namespace TaskRecorder.WindowsApp
             this.TrayIconTip = "業務履歴を記録します。";
             this.RepositoryPath = Path.Combine(Path.GetDirectoryName(this.Location) ?? "", "TaskLogs");
             this.TaskStorePath = Path.Combine(Path.GetDirectoryName(this.Location) ?? "", "TaskStore");
+            this.ToolDirectoryPath = Path.Combine(Path.GetDirectoryName(this.Location) ?? "", "ReportTools");
 
             this._loadAppConfig();
 
@@ -78,6 +89,9 @@ namespace TaskRecorder.WindowsApp
             if (Directory.Exists(this.TaskStorePath) == false)
                 Directory.CreateDirectory(this.TaskStorePath);
 
+            if (Directory.Exists(this.ToolDirectoryPath) == false)
+                Directory.CreateDirectory(this.ToolDirectoryPath);
+
             this._workingManager = new WorkingManager(this.RepositoryPath);
             this._workingManager.LogFileTimeFormat = "yyyyMMdd-HHmmss-fff_";
             
@@ -85,6 +99,7 @@ namespace TaskRecorder.WindowsApp
             
             this._loadTasks();
             this._updateTasksMenu();
+            this._loadTools();
         }
 
         private void _loadAppConfig()
@@ -112,6 +127,7 @@ namespace TaskRecorder.WindowsApp
                     this.TrayIconTip = getPropertyOrNull(application, "TrayIconTip") ?? this.TrayIconTip;
                     this.RepositoryPath = getPropertyOrNull(application, "RepositoryPath") ?? this.RepositoryPath;
                     this.TaskStorePath = getPropertyOrNull(application, "TaskStorePath") ?? this.TaskStorePath;
+                    this.TaskStorePath = getPropertyOrNull(application, "ToolDirectoryPath") ?? this.TaskStorePath;
                 }
             }
         }
@@ -169,6 +185,18 @@ namespace TaskRecorder.WindowsApp
                 item.Click += this._workingTaskMenuItem_Click;
 
                 this._tasksMenu.DropDownItems.Add(item);
+            }
+        }
+
+        private void _loadTools()
+        {
+            var defJsonPath = Path.Combine(this.ToolDirectoryPath, "tools.json");
+            if (!File.Exists(defJsonPath))
+                return;
+
+            using (var fs = File.OpenRead(defJsonPath))
+            {
+                this._toolMenuInfo = JsonSerializer.Deserialize<ToolMenuInfo>(fs);
             }
         }
 
@@ -231,6 +259,47 @@ namespace TaskRecorder.WindowsApp
                     Console.WriteLine($"エラーが発生しました: {ex.Message}");
                 }
             });
+
+            if (this._toolMenuInfo != null && this._toolMenuInfo.Tools != null)
+            {
+                var toolStripMenuItem = new ToolStripMenuItem(this._toolMenuInfo.MenuItemName);
+                foreach (var tool in this._toolMenuInfo.Tools)
+                {
+                    var item = new ToolStripMenuItem(tool.Name);
+                    item.Click += (sender, e) =>
+                    {
+                        var result = System.Windows.MessageBox.Show(
+                            $"{tool.Name} を実行しますか？\n({tool.Execute})",
+                            this.ApplicationName,
+                            MessageBoxButton.OKCancel,
+                            MessageBoxImage.Information,
+                            MessageBoxResult.Cancel);
+                        if (result == MessageBoxResult.Cancel)
+                            return;
+
+                        try
+                        {
+                            if (tool.Execute == null || String.IsNullOrEmpty(tool.Execute))
+                                return;
+
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = Path.Combine(this.ToolDirectoryPath, tool.Execute),
+                                UseShellExecute = true
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"エラーが発生しました: {ex.Message}");
+                        }
+                    };
+
+                    toolStripMenuItem.DropDownItems.Add(item);
+                }
+
+                this._menu.Items.Add(toolStripMenuItem);
+            }
+
             this._menu.Items.Add("終了(&X)", null, (obj, e) =>
             {
                 var result = System.Windows.MessageBox.Show(

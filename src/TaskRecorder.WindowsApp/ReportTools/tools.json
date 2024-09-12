@@ -1,0 +1,13 @@
+﻿{
+  "MenuItemName": "ツールを実行する(&B)",
+  "Tools": [
+    {
+      "Name": "日々の作業内容をテキスト ファイルに出力(&C)",
+      "Execute": "ExportReport.bat"
+    },
+    {
+      "Name": "PC の利用時間を CSV に出力(&W)",
+      "Execute": "ExportPCReport.bat"
+    }
+  ]
+}
