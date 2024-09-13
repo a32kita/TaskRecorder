@@ -14,18 +14,20 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <TextBlock Margin="10px" Grid.Row="0"><Run Text="{Binding WorkingTasks.Count, Mode=OneWay}"/> 件のタスクが登録されています</TextBlock>
-        <ListView Margin="10px" Grid.Row="1" ItemsSource="{Binding WorkingTasks}">
+        <ListView Margin="10px" Grid.Row="1" ItemsSource="{Binding WorkingTasks}" HorizontalContentAlignment="Stretch">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Width="Auto">
+                    <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <appui:TaskItemPanel WorkingTask="{Binding}" Grid.Column="0" HorizontalAlignment="Left"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" Width="Auto" Margin="10px">
-                            <Button HorizontalAlignment="Right" Margin="10px">複製</Button>
-                            <Button HorizontalAlignment="Right" Margin="10px">無効化</Button>
+
+                        <appui:TaskItemPanel WorkingTask="{Binding}" Grid.Column="0" HorizontalAlignment="Left" />
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" Margin="10">
+                            <Button Margin="10 5" Padding="5">複製</Button>
+                            <Button Margin="10 5" Padding="5">無効化</Button>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
