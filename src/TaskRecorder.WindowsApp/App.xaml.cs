@@ -213,7 +213,8 @@ namespace TaskRecorder.WindowsApp
             if (respConfirm == null || respConfirm.Value == false)
                 return;
 
-            this._workingManager.ChangeCurrentTask(newWorkingTask, String.Empty);
+            var descriptionText = confirmChangesWindow.NextWorkingTaskDescriptionText;
+            this._workingManager.ChangeCurrentTask(newWorkingTask, descriptionText);
 
             foreach (var item in this._tasksMenu.DropDownItems)
             {
@@ -226,7 +227,6 @@ namespace TaskRecorder.WindowsApp
                         castedItem.Checked = false;
                 }
             }
-            //menuItem.Checked = true;
         }
 
 
@@ -238,23 +238,6 @@ namespace TaskRecorder.WindowsApp
             var newWorkingTask = menuItem.Tag as WorkingTask;
             if (newWorkingTask == null)
                 throw new Exception();
-
-            //var confirmChangesWindow = new ConfirmChangesWindow();
-            //confirmChangesWindow.PrevWorkingTask = WorkingTask.IsNullOrEmpty(this._workingManager.CurrentWorkingTask) ? new WorkingTask() { Name = "(None)" } : this._workingManager.CurrentWorkingTask;
-            //confirmChangesWindow.NextWorkingTask = newWorkingTask;
-
-            //var respConfirm = confirmChangesWindow.ShowDialog();
-            //if (respConfirm == null || respConfirm.Value == false)
-            //    return;
-
-            //this._workingManager.ChangeCurrentTask(newWorkingTask, String.Empty);
-
-            //foreach (var item in this._tasksMenu.DropDownItems)
-            //{
-            //    if (item is ToolStripMenuItem)
-            //        ((ToolStripMenuItem)item).Checked = false;
-            //}
-            //menuItem.Checked = true;
 
             this._changeCurrentTask(newWorkingTask);
         }

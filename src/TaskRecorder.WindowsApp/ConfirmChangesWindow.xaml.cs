@@ -52,17 +52,19 @@ namespace TaskRecorder.WindowsApp
             DependencyProperty.Register("NextWorkingTask", typeof(WorkingTask), typeof(ConfirmChangesWindow), new PropertyMetadata(null));
 
 
-        //public WorkingTask PrevWorkingTask
-        //{
-        //    get;
-        //    set;
-        //}
 
-        //public WorkingTask NextWorkingTask
-        //{
-        //    get;
-        //    set;
-        //}
+
+        public string NextWorkingTaskDescriptionText
+        {
+            get { return (string)GetValue(NextWorkingTaskDescriptionTextProperty); }
+            set { SetValue(NextWorkingTaskDescriptionTextProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for NextWorkingTaskDescriptionText.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty NextWorkingTaskDescriptionTextProperty =
+            DependencyProperty.Register("NextWorkingTaskDescriptionText", typeof(string), typeof(ConfirmChangesWindow), new PropertyMetadata(String.Empty));
+
+
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {

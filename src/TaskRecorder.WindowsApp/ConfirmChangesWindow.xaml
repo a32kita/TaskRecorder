@@ -6,7 +6,12 @@
         xmlns:local="clr-namespace:TaskRecorder.WindowsApp"
         xmlns:appui="clr-namespace:TaskRecorder.WindowsApp.UIControls"
         mc:Ignorable="d"
-        Title="タスクの切り替え" Width="400" ResizeMode="NoResize" SizeToContent="Height" WindowStartupLocation="CenterScreen">
+        Title="タスクの切り替え"
+        Width="400"
+        ResizeMode="NoResize"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True">
     <StackPanel Margin="10px">
         <TextBlock>タスクを切り替えますか？</TextBlock>
         <Grid>
@@ -17,6 +22,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition/>
+                <RowDefinition/>
             </Grid.RowDefinitions>
 
             <Label VerticalAlignment="Center" Margin="10px 0px" Grid.Column="0" Grid.Row="0">切り替え前</Label>
@@ -24,6 +30,9 @@
 
             <Label VerticalAlignment="Center" Margin="10px 0px" Grid.Column="0" Grid.Row="1">切り替え後</Label>
             <appui:TaskItemPanel Grid.Column="1" Grid.Row="1" WorkingTask="{Binding NextWorkingTask, Mode=TwoWay}"/>
+
+            <Label VerticalAlignment="Center" Margin="10px 0px" Grid.Column="0" Grid.Row="2">備考</Label>
+            <TextBox Text="{Binding NextWorkingTaskDescriptionText, Mode=TwoWay}" Grid.Column="1" Grid.Row="2"/>
         </Grid>
         <StackPanel
             Orientation="Horizontal"
