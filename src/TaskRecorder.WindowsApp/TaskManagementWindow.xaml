@@ -1,0 +1,29 @@
+﻿<Window x:Class="TaskRecorder.WindowsApp.TaskManagementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TaskRecorder.WindowsApp"
+        xmlns:appui="clr-namespace:TaskRecorder.WindowsApp.UIControls"
+        mc:Ignorable="d"
+        Title="TaskManagementWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Margin="10px" Grid.Row="0"><Run Text="{Binding WorkingTasks.Count, Mode=OneWay}"/> 件のタスクが登録されています</TextBlock>
+        <ListView Margin="10px" Grid.Row="1" ItemsSource="{Binding WorkingTasks}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <appui:TaskItemPanel WorkingTask="{Binding}"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10px">
+            <Button Padding="10px 5px" Margin="10px 0px 0px 0px" Click="_reloadTasksButton_Click">再読み込み(_R)</Button>
+            <Button Padding="10px 5px" Margin="10px 0px 0px 0px">新規追加(_A)</Button>
+        </StackPanel>
+    </Grid>
+</Window>

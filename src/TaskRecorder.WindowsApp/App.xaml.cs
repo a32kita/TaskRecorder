@@ -100,8 +100,7 @@ namespace TaskRecorder.WindowsApp
             this._emptyCheckTimer = new DispatcherTimer();
             this._statusCheckTimer = new DispatcherTimer();
 
-            this._loadTasks();
-            this._updateTasksMenu();
+            this._reloadTasks();
             this._loadTools();
         }
 
@@ -191,6 +190,12 @@ namespace TaskRecorder.WindowsApp
             }
         }
 
+        private void _reloadTasks()
+        {
+            this._loadTasks();
+            this._updateTasksMenu();
+        }
+
         private void _loadTools()
         {
             var defJsonPath = Path.Combine(this.ToolDirectoryPath, "tools.json");
@@ -258,12 +263,7 @@ namespace TaskRecorder.WindowsApp
 
             //this._menu.Items.Add("設定(&S) ...", null, (obj, e) => { });
             this._menu.Items.Add(this._tasksMenu);
-            this._menu.Items.Add("タスクを再読み込み(&R)", null, (sender, e) =>
-            {
-                this._loadTasks();
-                this._updateTasksMenu();
-            });
-
+            this._menu.Items.Add("タスクを再読み込み(&R)", null, (sender, e) => this._reloadTasks());
             this._menu.Items.Add("タスク定義フォルダを開く(&T) ...", null, (obj, e) =>
             {
                 try
@@ -278,6 +278,15 @@ namespace TaskRecorder.WindowsApp
                 {
                     Console.WriteLine($"エラーが発生しました: {ex.Message}");
                 }
+            });
+
+            this._menu.Items.Add("タスク定義の管理(&M) ...", null, (obj, e) =>
+            {
+                var taskManagementWindow = new TaskManagementWindow(this._workingManager);
+                taskManagementWindow.RequestedUpdateTasks += (sender, e) => this._reloadTasks();
+                taskManagementWindow.ShowDialog();
+                
+                this._reloadTasks();
             });
 
             if (this._toolMenuInfo != null && this._toolMenuInfo.Tools != null)
