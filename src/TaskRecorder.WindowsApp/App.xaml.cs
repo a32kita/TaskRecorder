@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using TaskRecorder.Core;
 using TaskRecorder.WindowsApp.Tools;
@@ -202,16 +203,8 @@ namespace TaskRecorder.WindowsApp
             }
         }
 
-
-        private void _workingTaskMenuItem_Click(Object? sender, EventArgs e)
+        private void _changeCurrentTask(WorkingTask newWorkingTask)
         {
-            var menuItem = sender as ToolStripMenuItem;
-            if (menuItem == null)
-                throw new Exception();
-            var newWorkingTask = menuItem.Tag as WorkingTask;
-            if (newWorkingTask == null)
-                throw new Exception();
-
             var confirmChangesWindow = new ConfirmChangesWindow();
             confirmChangesWindow.PrevWorkingTask = WorkingTask.IsNullOrEmpty(this._workingManager.CurrentWorkingTask) ? new WorkingTask() { Name = "(None)" } : this._workingManager.CurrentWorkingTask;
             confirmChangesWindow.NextWorkingTask = newWorkingTask;
@@ -225,9 +218,45 @@ namespace TaskRecorder.WindowsApp
             foreach (var item in this._tasksMenu.DropDownItems)
             {
                 if (item is ToolStripMenuItem)
-                    ((ToolStripMenuItem)item).Checked = false;
+                {
+                    var castedItem = (ToolStripMenuItem)item;
+                    if (castedItem.Tag == newWorkingTask)
+                        castedItem.Checked = true;
+                    else
+                        castedItem.Checked = false;
+                }
             }
-            menuItem.Checked = true;
+            //menuItem.Checked = true;
+        }
+
+
+        private void _workingTaskMenuItem_Click(Object? sender, EventArgs e)
+        {
+            var menuItem = sender as ToolStripMenuItem;
+            if (menuItem == null)
+                throw new Exception();
+            var newWorkingTask = menuItem.Tag as WorkingTask;
+            if (newWorkingTask == null)
+                throw new Exception();
+
+            //var confirmChangesWindow = new ConfirmChangesWindow();
+            //confirmChangesWindow.PrevWorkingTask = WorkingTask.IsNullOrEmpty(this._workingManager.CurrentWorkingTask) ? new WorkingTask() { Name = "(None)" } : this._workingManager.CurrentWorkingTask;
+            //confirmChangesWindow.NextWorkingTask = newWorkingTask;
+
+            //var respConfirm = confirmChangesWindow.ShowDialog();
+            //if (respConfirm == null || respConfirm.Value == false)
+            //    return;
+
+            //this._workingManager.ChangeCurrentTask(newWorkingTask, String.Empty);
+
+            //foreach (var item in this._tasksMenu.DropDownItems)
+            //{
+            //    if (item is ToolStripMenuItem)
+            //        ((ToolStripMenuItem)item).Checked = false;
+            //}
+            //menuItem.Checked = true;
+
+            this._changeCurrentTask(newWorkingTask);
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -246,6 +275,12 @@ namespace TaskRecorder.WindowsApp
 
             //this._menu.Items.Add("設定(&S) ...", null, (obj, e) => { });
             this._menu.Items.Add(this._tasksMenu);
+            this._menu.Items.Add("タスクを再読み込み(&R)", null, (sender, e) =>
+            {
+                this._loadTasks();
+                this._updateTasksMenu();
+            });
+
             this._menu.Items.Add("タスク定義フォルダを開く(&T) ...", null, (obj, e) =>
             {
                 try
