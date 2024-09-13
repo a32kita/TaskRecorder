@@ -17,7 +17,17 @@
         <ListView Margin="10px" Grid.Row="1" ItemsSource="{Binding WorkingTasks}">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <appui:TaskItemPanel WorkingTask="{Binding}"/>
+                    <Grid Width="Auto">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <appui:TaskItemPanel WorkingTask="{Binding}" Grid.Column="0" HorizontalAlignment="Left"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" Width="Auto" Margin="10px">
+                            <Button HorizontalAlignment="Right" Margin="10px">複製</Button>
+                            <Button HorizontalAlignment="Right" Margin="10px">無効化</Button>
+                        </StackPanel>
+                    </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
