@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TaskRecorder.WindowsApp"
         xmlns:appui="clr-namespace:TaskRecorder.WindowsApp.UIControls"
         mc:Ignorable="d"
-        Title="TaskManagementWindow" Height="450" Width="800">
+        Title="タスクの管理" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
