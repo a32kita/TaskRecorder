@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -169,7 +170,15 @@ namespace TaskRecorder.WindowsApp
             {
                 using (var fs = File.OpenRead(taskDef))
                 {
-                    tasks.Add(JsonSerializer.Deserialize<WorkingTask>(fs) ?? throw new Exception());
+                    var task = JsonSerializer.Deserialize<WorkingTask>(fs) ?? throw new Exception();
+                    var idCollisionedTasks = tasks.Where(item => item.Id == task.Id).Count();
+                    if (idCollisionedTasks > 0)
+                    {
+                        System.Windows.MessageBox.Show($"重複する ID のタスクがストアに存在しています。\n\n・{task.Name}{String.Join("\n・", idCollisionedTasks)}", this.ApplicationName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                        Environment.Exit(1);
+                    }
+
+                    tasks.Add(task);
                 }
             }
 
@@ -241,7 +250,6 @@ namespace TaskRecorder.WindowsApp
             }
         }
 
-
         private void _workingTaskMenuItem_Click(Object? sender, EventArgs e)
         {
             var menuItem = sender as ToolStripMenuItem;
@@ -252,6 +260,36 @@ namespace TaskRecorder.WindowsApp
                 throw new Exception();
 
             this._changeCurrentTask(newWorkingTask);
+        }
+
+        private string _createFileNameFromCode(WorkingTask workingTask)
+        {
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            string validName = Regex.Replace(workingTask.Code, $"[{Regex.Escape(new string(invalidChars))}]", "_");
+            string uuid = Guid.NewGuid().ToString();
+            validName += $"_{uuid}.json";
+
+            return validName;
+        }
+
+        private bool _createNewTaskItem(WorkingTask workingTask)
+        {
+            var savePath = Path.Combine(this.TaskStorePath, this._createFileNameFromCode(workingTask));
+            if (File.Exists(savePath))
+            {
+                System.Windows.MessageBox.Show($"新規タスクの登録に失敗しました。\nファイル名が重複しました。", this.ApplicationName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            using (var fs = File.OpenWrite(savePath))
+            {
+                JsonSerializer.Serialize(fs, workingTask, new JsonSerializerOptions()
+                {
+                    WriteIndented = true,
+                });
+            }
+
+            return true;
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -291,6 +329,7 @@ namespace TaskRecorder.WindowsApp
             {
                 var taskManagementWindow = new TaskManagementWindow(this._workingManager);
                 taskManagementWindow.RequestedUpdateTasks += (sender, e) => this._reloadTasks();
+                taskManagementWindow.RequestedAddTask += (sender, e) => this._createNewTaskItem(e.WorkingTask);
                 taskManagementWindow.ShowDialog();
                 
                 this._reloadTasks();
@@ -367,7 +406,7 @@ namespace TaskRecorder.WindowsApp
             this._emptyCheckTimer.Tick += (sender, e) => this._checkCurrentTask();
             this._emptyCheckTimer.Start();
 
-            this._statusCheckTimer.Interval = TimeSpan.FromMinutes(60);
+            this._statusCheckTimer.Interval = TimeSpan.FromMinutes(30);
             this._statusCheckTimer.Tick += (sender, e) =>
             {
                 if (WorkingTask.IsNullOrEmpty(this._workingManager.CurrentWorkingTask))

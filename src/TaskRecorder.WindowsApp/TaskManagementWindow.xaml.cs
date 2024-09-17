@@ -93,14 +93,14 @@ namespace TaskRecorder.WindowsApp
 
             this.RequestedAddTask?.Invoke(this, new RequestedAddTaskEventArgs(new WorkingTask()
             {
-                Name = taskEditWindow.Name,
+                Name = taskEditWindow.TaskNameText,
                 ShortName = taskEditWindow.TaskShortNameText,
                 Code = taskEditWindow.TaskCodeText,
                 Id = taskId,
                 Description = taskEditWindow.TaskDescriptionText,
             }));
 
-            this.RequestedUpdateTasks?.Invoke(sender, EventArgs.Empty);
+            this._reloadTasks();
         }
 
 
