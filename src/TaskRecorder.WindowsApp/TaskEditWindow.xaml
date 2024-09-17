@@ -48,10 +48,10 @@
             <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding TaskCodeText, Mode=TwoWay}"/>
 
             <TextBlock Grid.Row="3" Grid.Column="0">ID</TextBlock>
-            <TextBox Grid.Row="3" Grid.Column="1" IsReadOnly="True" Text="{Binding TaskIdText, Mode=TwoWay}"/>
+            <TextBox Grid.Row="3" Grid.Column="1" IsReadOnly="True" Text="{Binding TaskIdText, Mode=TwoWay}" Background="#efefef"/>
 
             <TextBlock Grid.Row="4" Grid.Column="0">概要</TextBlock>
-            <TextBox Grid.Row="4" Grid.Column="1" IsReadOnly="True" Text="{Binding TaskDescriptionText, Mode=TwoWay}"/>
+            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding TaskDescriptionText, Mode=TwoWay}"/>
         </Grid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Click="CancelButton_Click">Cancel</Button>
