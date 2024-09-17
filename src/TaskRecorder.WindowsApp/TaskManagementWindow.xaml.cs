@@ -37,6 +37,8 @@ namespace TaskRecorder.WindowsApp
 
         public event EventHandler? RequestedUpdateTasks;
 
+        public event EventHandler<RequestedAddTaskEventArgs>? RequestedAddTask;
+
 
         public TaskManagementWindow(WorkingManager workingManager)
         {
@@ -64,6 +66,55 @@ namespace TaskRecorder.WindowsApp
             this.WorkingTasks.Clear();
             foreach (var task in workingTasks)
                 this.WorkingTasks.Add(task);
+        }
+
+        private void _addNewTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            var taskEditWindow = new TaskEditWindow();
+            taskEditWindow.Owner = this;
+            taskEditWindow.Title = "新規タスクの追加";
+            taskEditWindow.TaskNameText = "Untitled Task";
+            taskEditWindow.TaskIdText = Guid.NewGuid().ToString();
+            taskEditWindow.ShowDialog();
+
+            if (taskEditWindow.DialogResult == false)
+                return;
+
+            var taskId = Guid.Empty;
+            if (Guid.TryParse(taskEditWindow.TaskIdText, out taskId) == false)
+            {
+                var result = System.Windows.MessageBox.Show(
+                    $"GUID へのパースに失敗しました；\n{taskEditWindow.TaskIdText}",
+                    "ERROR",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Exclamation);
+                return;
+            };
+
+            this.RequestedAddTask?.Invoke(this, new RequestedAddTaskEventArgs(new WorkingTask()
+            {
+                Name = taskEditWindow.Name,
+                ShortName = taskEditWindow.TaskShortNameText,
+                Code = taskEditWindow.TaskCodeText,
+                Id = taskId,
+                Description = taskEditWindow.TaskDescriptionText,
+            }));
+
+            this.RequestedUpdateTasks?.Invoke(sender, EventArgs.Empty);
+        }
+
+
+        public class RequestedAddTaskEventArgs
+        {
+            public WorkingTask WorkingTask
+            {
+                get;
+            }
+
+            public RequestedAddTaskEventArgs(WorkingTask workingTask)
+            {
+                this.WorkingTask = workingTask;
+            }
         }
     }
 }

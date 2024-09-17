@@ -5,9 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TaskRecorder.WindowsApp"
         mc:Ignorable="d"
-        Title="タスクの編集" Height="Auto" Width="400" SizeToContent="Height">
-    <StackPanel Margin="10">
+        Title="タスクの編集" Height="Auto" Width="400" SizeToContent="Height" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="10, 5"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+    </Window.Resources>
+    <StackPanel Margin="5">
         <TextBlock>タスクの編集</TextBlock>
+        <StackPanel Margin="5" Visibility="{Binding ErrorMessageBoxVisibility}" Background="LightPink">
+            <TextBlock FontWeight="Bold">エラー</TextBlock>
+            <TextBlock Text="{Binding ErrorMessageBoxText}"/>
+        </StackPanel>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -23,23 +39,23 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0">タスク名</TextBlock>
-            <TextBox Grid.Row="0" Grid.Column="1"></TextBox>
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding TaskNameText, Mode=TwoWay}"/>
 
             <TextBlock Grid.Row="1" Grid.Column="0">タスク省略名</TextBlock>
-            <TextBox Grid.Row="1" Grid.Column="1"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding TaskShortNameText, Mode=TwoWay}"/>
 
             <TextBlock Grid.Row="2" Grid.Column="0">Code</TextBlock>
-            <TextBox Grid.Row="2" Grid.Column="1"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding TaskCodeText, Mode=TwoWay}"/>
 
             <TextBlock Grid.Row="3" Grid.Column="0">ID</TextBlock>
-            <TextBox Grid.Row="3" Grid.Column="1" IsReadOnly="True"/>
+            <TextBox Grid.Row="3" Grid.Column="1" IsReadOnly="True" Text="{Binding TaskIdText, Mode=TwoWay}"/>
 
             <TextBlock Grid.Row="4" Grid.Column="0">概要</TextBlock>
-            <TextBox Grid.Row="4" Grid.Column="1" IsReadOnly="True"/>
+            <TextBox Grid.Row="4" Grid.Column="1" IsReadOnly="True" Text="{Binding TaskDescriptionText, Mode=TwoWay}"/>
         </Grid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button>Cancel</Button>
-            <Button>OK</Button>
+            <Button Click="CancelButton_Click">Cancel</Button>
+            <Button Click="OkButton_Click">OK</Button>
         </StackPanel>
     </StackPanel>
 </Window>

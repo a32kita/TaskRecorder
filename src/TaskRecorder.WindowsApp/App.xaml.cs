@@ -194,6 +194,7 @@ namespace TaskRecorder.WindowsApp
         {
             this._loadTasks();
             this._updateTasksMenu();
+            this._changeCurrentTask(this._workingManager.CurrentWorkingTask, true);
         }
 
         private void _loadTools()
@@ -208,17 +209,22 @@ namespace TaskRecorder.WindowsApp
             }
         }
 
-        private void _changeCurrentTask(WorkingTask newWorkingTask)
+        private void _changeCurrentTask(WorkingTask newWorkingTask, bool forced = false)
         {
-            var confirmChangesWindow = new ConfirmChangesWindow();
-            confirmChangesWindow.PrevWorkingTask = WorkingTask.IsNullOrEmpty(this._workingManager.CurrentWorkingTask) ? new WorkingTask() { Name = "(None)" } : this._workingManager.CurrentWorkingTask;
-            confirmChangesWindow.NextWorkingTask = newWorkingTask;
+            var descriptionText = String.Empty;
+            if (forced == false)
+            {
+                var confirmChangesWindow = new ConfirmChangesWindow();
+                confirmChangesWindow.PrevWorkingTask = WorkingTask.IsNullOrEmpty(this._workingManager.CurrentWorkingTask) ? new WorkingTask() { Name = "(None)" } : this._workingManager.CurrentWorkingTask;
+                confirmChangesWindow.NextWorkingTask = newWorkingTask;
 
-            var respConfirm = confirmChangesWindow.ShowDialog();
-            if (respConfirm == null || respConfirm.Value == false)
-                return;
+                var respConfirm = confirmChangesWindow.ShowDialog();
+                if (respConfirm == null || respConfirm.Value == false)
+                    return;
 
-            var descriptionText = confirmChangesWindow.NextWorkingTaskDescriptionText;
+                descriptionText = confirmChangesWindow.NextWorkingTaskDescriptionText;
+            }
+
             this._workingManager.ChangeCurrentTask(newWorkingTask, descriptionText);
 
             foreach (var item in this._tasksMenu.DropDownItems)
@@ -226,7 +232,8 @@ namespace TaskRecorder.WindowsApp
                 if (item is ToolStripMenuItem)
                 {
                     var castedItem = (ToolStripMenuItem)item;
-                    if (castedItem.Tag == newWorkingTask)
+                    var castedItemRelatedWorkingTask = (WorkingTask)castedItem.Tag;
+                    if (castedItemRelatedWorkingTask.Id == newWorkingTask.Id)
                         castedItem.Checked = true;
                     else
                         castedItem.Checked = false;

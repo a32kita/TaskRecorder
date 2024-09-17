@@ -35,7 +35,7 @@
         </ListView>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10px">
             <Button Padding="10px 5px" Margin="10px 0px 0px 0px" Click="_reloadTasksButton_Click">再読み込み(_R)</Button>
-            <Button Padding="10px 5px" Margin="10px 0px 0px 0px">新規追加(_A)</Button>
+            <Button Padding="10px 5px" Margin="10px 0px 0px 0px" Click="_addNewTaskButton_Click">新規追加(_A)</Button>
         </StackPanel>
     </Grid>
 </Window>

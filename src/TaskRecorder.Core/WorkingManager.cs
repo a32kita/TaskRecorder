@@ -179,7 +179,7 @@ namespace TaskRecorder.Core
         {
             if (workingTask == null)
                 throw new ArgumentNullException(nameof(workingTask));
-            if (WorkingTask.IsNullOrEmpty(workingTask) == false && this.WorkingTasks.Contains(workingTask) == false)
+            if (WorkingTask.IsNullOrEmpty(workingTask) == false && this.WorkingTasks.Where(t => t.Id.Equals(workingTask.Id)).Count() == 0)
                 throw new ArgumentOutOfRangeException(nameof(workingTask));
 
             if (WorkingTask.IsNullOrEmpty(this.CurrentWorkingTask) == false)

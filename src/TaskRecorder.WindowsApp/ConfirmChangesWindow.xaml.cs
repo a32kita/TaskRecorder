@@ -25,6 +25,8 @@ namespace TaskRecorder.WindowsApp
         {
             this.DataContext = this;
             InitializeComponent();
+
+            this.Loaded += (sender, e) => System.Media.SystemSounds.Asterisk.Play();
         }
 
 
