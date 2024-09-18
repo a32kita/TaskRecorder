@@ -39,6 +39,8 @@ namespace TaskRecorder.WindowsApp
 
         public event EventHandler<RequestedWorkingTaskEventArgs>? RequestedAddTask;
 
+        public event EventHandler<RequestedWorkingTaskEventArgs>? RequestedApplyTask;
+
         public event EventHandler<RequestedWorkingTaskEventArgs>? RequestedDisableTask;
 
 
@@ -109,6 +111,16 @@ namespace TaskRecorder.WindowsApp
             this._addTaskFromEditWindow(taskEditWindow);
         }
 
+        public void _itemApplyButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button == false)
+                return;
+            var button = (System.Windows.Controls.Button)sender;
+            var item = (WorkingTask)button.DataContext;
+
+            this.RequestedApplyTask?.Invoke(this, new RequestedWorkingTaskEventArgs(item));
+        }
+
         private void _itemDuplicateButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is System.Windows.Controls.Button == false)
@@ -158,7 +170,6 @@ namespace TaskRecorder.WindowsApp
 
             try
             {
-                //System.IO.File.Move(item.MetaInformation.SourceFile, item.MetaInformation.SourceFile + ".disabled");
                 this.RequestedDisableTask?.Invoke(this, new RequestedWorkingTaskEventArgs(item));
             }
             catch (Exception ex)

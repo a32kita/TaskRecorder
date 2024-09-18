@@ -28,6 +28,7 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" Margin="10">
                             <Button Margin="10 5" Padding="5" Click="_itemDuplicateButton_Click">複製</Button>
                             <Button Margin="10 5" Padding="5" Click="_itemDisableButton_Click">無効化</Button>
+                            <Button Margin="10 5" Padding="5" Click="_itemApplyButton_Click">切り替え</Button>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>

@@ -33,6 +33,8 @@ namespace TaskRecorder.WindowsApp
 
         private ToolMenuInfo? _toolMenuInfo;
 
+        private TaskManagementWindow? _taskManagementWindow;
+
 
         public string ApplicationName
         {
@@ -302,6 +304,25 @@ namespace TaskRecorder.WindowsApp
             return true;
         }
 
+        private void _showTaskManagementWindow()
+        {
+            if (this._taskManagementWindow == null || this._taskManagementWindow.IsVisible == false)
+            {
+                this._taskManagementWindow = new TaskManagementWindow(this._workingManager);
+                this._taskManagementWindow.RequestedUpdateTasks += (sender, e) => this._reloadTasks();
+                this._taskManagementWindow.RequestedAddTask += (sender, e) => this._createNewTaskItem(e.WorkingTask);
+                this._taskManagementWindow.RequestedDisableTask += (sender, e) => this._disableTaskItem(e.WorkingTask);
+                this._taskManagementWindow.RequestedApplyTask += (sender, e) => this._changeCurrentTask(e.WorkingTask);
+                this._taskManagementWindow.ShowDialog();
+            }
+            else
+            {
+                this._taskManagementWindow.Activate();
+            }
+
+            this._reloadTasks();
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             var isNewInstance = false;
@@ -337,13 +358,7 @@ namespace TaskRecorder.WindowsApp
 
             this._menu.Items.Add("タスク定義の管理(&M) ...", null, (obj, e) =>
             {
-                var taskManagementWindow = new TaskManagementWindow(this._workingManager);
-                taskManagementWindow.RequestedUpdateTasks += (sender, e) => this._reloadTasks();
-                taskManagementWindow.RequestedAddTask += (sender, e) => this._createNewTaskItem(e.WorkingTask);
-                taskManagementWindow.RequestedDisableTask += (sender, e) => this._disableTaskItem(e.WorkingTask);
-                taskManagementWindow.ShowDialog();
-                
-                this._reloadTasks();
+                this._showTaskManagementWindow();
             });
 
             if (this._toolMenuInfo != null && this._toolMenuInfo.Tools != null)
@@ -404,11 +419,16 @@ namespace TaskRecorder.WindowsApp
             this._notifyIcon.Icon = Icon.ExtractAssociatedIcon(this.Location);
             this._notifyIcon.Text = $"{this.ApplicationName}: {this.TrayIconTip}";
             this._notifyIcon.ContextMenuStrip = _menu;
-
-            this._notifyIcon.Click += (obj, e) =>
+            
+            this._notifyIcon.BalloonTipClicked += (sender, e) =>
             {
-                // クリックされたときの処理
+                this._showTaskManagementWindow();
+            };
+
+            this._notifyIcon.Click += (sender, e) =>
+            {
                 // NOP
+                //this._showTaskManagementWindow();
             };
 
             this._checkCurrentTask();
