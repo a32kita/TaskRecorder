@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TaskRecorder.WindowsApp"
         mc:Ignorable="d"
-        Title="タスクの編集" Height="Auto" Width="400" SizeToContent="Height" WindowStartupLocation="CenterOwner">
+        Title="タスクの編集" Height="Auto" Width="400" SizeToContent="Height" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Window.Resources>
         <Style TargetType="TextBox">
             <Setter Property="Margin" Value="5"/>
