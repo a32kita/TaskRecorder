@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace TaskRecorder.Core
 {
@@ -30,6 +31,13 @@ namespace TaskRecorder.Core
             set;
         }
 
+        [JsonIgnore]
+        public MetaInformation MetaInformation
+        {
+            get;
+            set;
+        }
+
         public TimeSpan TimeTaken
         {
             get => this.EndDateTime - StartDateTime;
@@ -41,6 +49,7 @@ namespace TaskRecorder.Core
             this.StartDateTime = DateTimeOffset.MinValue;
             this.EndDateTime = DateTimeOffset.MinValue;
             this.Description = String.Empty;
+            this.MetaInformation = new MetaInformation();
         }
     }
 }

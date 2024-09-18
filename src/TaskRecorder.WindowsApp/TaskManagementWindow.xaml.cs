@@ -37,7 +37,9 @@ namespace TaskRecorder.WindowsApp
 
         public event EventHandler? RequestedUpdateTasks;
 
-        public event EventHandler<RequestedAddTaskEventArgs>? RequestedAddTask;
+        public event EventHandler<RequestedWorkingTaskEventArgs>? RequestedAddTask;
+
+        public event EventHandler<RequestedWorkingTaskEventArgs>? RequestedDisableTask;
 
 
         public TaskManagementWindow(WorkingManager workingManager)
@@ -68,22 +70,12 @@ namespace TaskRecorder.WindowsApp
                 this.WorkingTasks.Add(task);
         }
 
-        private void _addNewTaskButton_Click(object sender, RoutedEventArgs e)
+        private void _addTaskFromEditWindow(TaskEditWindow taskEditWindow)
         {
-            var taskEditWindow = new TaskEditWindow();
-            taskEditWindow.Owner = this;
-            taskEditWindow.Title = "新規タスクの追加";
-            taskEditWindow.TaskNameText = "Untitled Task";
-            taskEditWindow.TaskIdText = Guid.NewGuid().ToString();
-            taskEditWindow.ShowDialog();
-
-            if (taskEditWindow.DialogResult == false)
-                return;
-
             var taskId = Guid.Empty;
             if (Guid.TryParse(taskEditWindow.TaskIdText, out taskId) == false)
             {
-                var result = System.Windows.MessageBox.Show(
+                System.Windows.MessageBox.Show(
                     $"GUID へのパースに失敗しました；\n{taskEditWindow.TaskIdText}",
                     "ERROR",
                     MessageBoxButton.OK,
@@ -91,7 +83,7 @@ namespace TaskRecorder.WindowsApp
                 return;
             };
 
-            this.RequestedAddTask?.Invoke(this, new RequestedAddTaskEventArgs(new WorkingTask()
+            this.RequestedAddTask?.Invoke(this, new RequestedWorkingTaskEventArgs(new WorkingTask()
             {
                 Name = taskEditWindow.TaskNameText,
                 ShortName = taskEditWindow.TaskShortNameText,
@@ -103,15 +95,94 @@ namespace TaskRecorder.WindowsApp
             this._reloadTasks();
         }
 
+        private void _addNewTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            var taskEditWindow = new TaskEditWindow();
+            taskEditWindow.Owner = this;
+            taskEditWindow.Title = "新規タスクの追加";
+            taskEditWindow.TaskNameText = "Untitled Task";
+            taskEditWindow.TaskIdText = Guid.NewGuid().ToString();
+            taskEditWindow.ShowDialog();
 
-        public class RequestedAddTaskEventArgs
+            if (taskEditWindow.DialogResult == false)
+                return;
+            this._addTaskFromEditWindow(taskEditWindow);
+        }
+
+        private void _itemDuplicateButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button == false)
+                return;
+            var button = (System.Windows.Controls.Button)sender;
+            var item = (WorkingTask)button.DataContext;
+
+            var taskEditWindow = new TaskEditWindow();
+            taskEditWindow.Owner = this;
+            taskEditWindow.TaskNameText = item.Name;
+            taskEditWindow.TaskShortNameText = item.ShortName;
+            taskEditWindow.TaskCodeText = item.Code;
+            taskEditWindow.TaskDescriptionText = item.Description;
+            taskEditWindow.TaskIdText = Guid.NewGuid().ToString();
+            taskEditWindow.ShowDialog();
+
+            if (taskEditWindow.DialogResult == false)
+                return;
+            this._addTaskFromEditWindow(taskEditWindow);
+        }
+
+        private void _itemDisableButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button == false)
+                return;
+            var button = (System.Windows.Controls.Button)sender;
+            var item = (WorkingTask)button.DataContext;
+
+            var result = System.Windows.MessageBox.Show(
+                    $"'{item.Name}' を無効化しますか？",
+                    "タスクの無効化",
+                    MessageBoxButton.OKCancel,
+                    MessageBoxImage.Information,
+                    MessageBoxResult.Cancel);
+            if (result == MessageBoxResult.Cancel)
+                return;
+
+            if (String.IsNullOrEmpty(item.MetaInformation?.SourceFile))
+            {
+                System.Windows.MessageBox.Show(
+                    $"'{item.Name}' の無効化に失敗しました。\nメタデータが正しく設定されていません。",
+                    "ERROR",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Exclamation);
+                return;
+            }
+
+            try
+            {
+                //System.IO.File.Move(item.MetaInformation.SourceFile, item.MetaInformation.SourceFile + ".disabled");
+                this.RequestedDisableTask?.Invoke(this, new RequestedWorkingTaskEventArgs(item));
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"'{item.Name}' の無効化に失敗しました。\n下記のファイルの移動ができません。\n\n{item.MetaInformation.SourceFile}\n\n{ex.GetType().Name}: {ex.Message}",
+                    "ERROR",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Exclamation);
+                return;
+            }
+
+            this._reloadTasks();
+        }
+
+
+        public class RequestedWorkingTaskEventArgs
         {
             public WorkingTask WorkingTask
             {
                 get;
             }
 
-            public RequestedAddTaskEventArgs(WorkingTask workingTask)
+            public RequestedWorkingTaskEventArgs(WorkingTask workingTask)
             {
                 this.WorkingTask = workingTask;
             }

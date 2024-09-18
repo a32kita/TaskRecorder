@@ -171,11 +171,13 @@ namespace TaskRecorder.WindowsApp
                 using (var fs = File.OpenRead(taskDef))
                 {
                     var task = JsonSerializer.Deserialize<WorkingTask>(fs) ?? throw new Exception();
-                    var idCollisionedTasks = tasks.Where(item => item.Id == task.Id).Count();
-                    if (idCollisionedTasks > 0)
+                    task.MetaInformation.SourceFile = taskDef;
+
+                    var idCollisionedTasks = tasks.Where(item => item.Id == task.Id);
+                    if (idCollisionedTasks.Count() > 0)
                     {
-                        System.Windows.MessageBox.Show($"重複する ID のタスクがストアに存在しています。\n\n・{task.Name}{String.Join("\n・", idCollisionedTasks)}", this.ApplicationName, MessageBoxButton.OK, MessageBoxImage.Warning);
-                        Environment.Exit(1);
+                        System.Windows.MessageBox.Show($"重複する ID のタスクがストアに存在しています。\n\n・{task.Name} ({Path.GetFileName(task.MetaInformation.SourceFile)})\n・{String.Join("\n・", idCollisionedTasks.Select(item => item.Name + $" ({Path.GetFileName(item.MetaInformation.SourceFile)})"))}", this.ApplicationName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                        this.Shutdown(1);
                     }
 
                     tasks.Add(task);
@@ -292,6 +294,14 @@ namespace TaskRecorder.WindowsApp
             return true;
         }
 
+        private bool _disableTaskItem(WorkingTask workingTask)
+        {
+            if (workingTask.MetaInformation?.SourceFile == null)
+                throw new InvalidOperationException();
+            File.Move(workingTask.MetaInformation.SourceFile, workingTask.MetaInformation.SourceFile + ".disabled");
+            return true;
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             var isNewInstance = false;
@@ -330,6 +340,7 @@ namespace TaskRecorder.WindowsApp
                 var taskManagementWindow = new TaskManagementWindow(this._workingManager);
                 taskManagementWindow.RequestedUpdateTasks += (sender, e) => this._reloadTasks();
                 taskManagementWindow.RequestedAddTask += (sender, e) => this._createNewTaskItem(e.WorkingTask);
+                taskManagementWindow.RequestedDisableTask += (sender, e) => this._disableTaskItem(e.WorkingTask);
                 taskManagementWindow.ShowDialog();
                 
                 this._reloadTasks();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace TaskRecorder.Core
 {
@@ -46,6 +47,14 @@ namespace TaskRecorder.Core
             set;
         }
 
+        [JsonIgnore]
+        public MetaInformation MetaInformation
+        {
+            get;
+            set;
+        }
+
+
         public static WorkingTask Empty
         {
             get;
@@ -61,6 +70,7 @@ namespace TaskRecorder.Core
             this.Code = String.Empty;
             this.Description = String.Empty;
             this.DueDate = DateTimeOffset.MinValue;
+            this.MetaInformation = new MetaInformation();
             this._isEmpty = false;
         }
 

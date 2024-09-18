@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TaskRecorder.WindowsApp"
         xmlns:appui="clr-namespace:TaskRecorder.WindowsApp.UIControls"
         mc:Ignorable="d"
-        Title="タスクの管理" Height="450" Width="800">
+        Title="タスクの管理" Height="450" Width="800" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -26,8 +26,8 @@
                         <appui:TaskItemPanel WorkingTask="{Binding}" Grid.Column="0" HorizontalAlignment="Left" />
 
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" Margin="10">
-                            <Button Margin="10 5" Padding="5">複製</Button>
-                            <Button Margin="10 5" Padding="5">無効化</Button>
+                            <Button Margin="10 5" Padding="5" Click="_itemDuplicateButton_Click">複製</Button>
+                            <Button Margin="10 5" Padding="5" Click="_itemDisableButton_Click">無効化</Button>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
